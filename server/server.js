@@ -4,7 +4,7 @@ require('babel-register');
 var swig  = require('swig');
 var React = require('react');
 var ReactDOM = require('react-dom/server');
-var Router = require('react-router').Router;
+var Router = require('react-router');
 var routes = require('./../app/routes');
 var express = require('express');
 var path = require('path');
@@ -25,7 +25,7 @@ var app = express();
 require('./database');
 
 //Setting port and middleware
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 3001);
 app.use(compression());
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -61,7 +61,7 @@ app.use(function(err, req, res, next) {
     res.send({ message: err.message });
 });
 
-//Adding socket.io features
+
 /**
  * Socket.io counter.
  */

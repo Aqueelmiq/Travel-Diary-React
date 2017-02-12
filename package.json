@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node server/server.js",
     "watch": "nodemon server/server.js",
-    "postinstall": "bower install && gulp build"
+    "postinstall": "node_modules/.bin/bower install && node_modules/.bin/gulp build"
   },
   "babel": {
     "presets": [

@@ -21,9 +21,36 @@ router.post('/posts', function(req, res) {
                     res.send("error");
                 else {
                     res.json({
+                        uploaded: post,
                         posts: posts
                     });
                 }
+            });
+        }
+    });
+});
+
+router.put('/posts/img/:id', function(req, res) {
+    Post.findOne({_id: req.params.id}, function (err, post) {
+        if(err)
+            res.send("error");
+        else {
+            post.img = req.body.img;
+            post.save();
+            res.json({
+                post: post
+            });
+        }
+    });
+});
+
+router.get('/posts/:id', function(req, res) {
+    Post.findOne({_id: req.params.id}, function (err, post) {
+        if(err)
+            res.send("error");
+        else {
+            res.json({
+                post: post
             });
         }
     });

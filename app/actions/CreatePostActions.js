@@ -9,6 +9,7 @@ class CreatePostActions {
             'imgChange',
             'textChange',
             'idIncrement',
+            'setLocation',
         );
     }
 }

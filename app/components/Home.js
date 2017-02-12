@@ -3,7 +3,7 @@ import React from 'react';
 import HomeStore from '../stores/HomeStore'
 import HomeActions from '../actions/HomeActions';
 import Post from './Post';
-import * as firebase from 'firebase';
+//import * as firebase from 'firebase';
 //import {first, without, findWhere} from 'underscore';
 
 class Home extends React.Component {
@@ -12,11 +12,11 @@ class Home extends React.Component {
         super(props);
         this.state = HomeStore.getState();
         this.onChange = this.onChange.bind(this);
+        this.handleNewItem = this.handleNewItem.bind(this);
     }
 
     componentDidMount() {
         HomeStore.listen(this.onChange);
-        console.log(firebase.auth().currentUser);
     }
 
     componentWillUnmount() {
@@ -29,7 +29,7 @@ class Home extends React.Component {
 
     handleNewItem(event) {
         event.preventDefault();
-        window.location = '/create';
+        window.location = '/create/' + this.state.newItemText;
     }
 
     render() {

@@ -17,6 +17,16 @@ class App extends React.Component {
     componentDidMount() {
         AppStore.listen(this.onChange);
         AppActions.getPosts();
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                //localStorage.setItem('uid', user.uid);
+                //this.props.router.push('/');
+
+            } else {
+                //localStorage.removeItem('uid');
+                this.props.router.push('/');
+            }
+        }.bind(this));
     }
 
     componentWillUnmount() {
@@ -37,7 +47,6 @@ class App extends React.Component {
             else if (child.type === CreatePost) {
                 return React.cloneElement(child, {
                     onPostSubmit: AppActions.newPost,
-                    posts: this.state.posts
                 })
             }
             else

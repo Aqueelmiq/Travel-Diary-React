@@ -1,3 +1,3 @@
 module.exports = {
-    database: process.env.MONGODB_URI || 'localhost/react-app-travel2'
+    database: process.env.MONGODB_URI || 'localhost/react-app-travel5'
 };

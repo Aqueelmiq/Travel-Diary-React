@@ -22,11 +22,13 @@ class UserAccount extends React.Component {
     componentDidMount() {
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
-                //this.props.router.push('/');
+                //localStorage.setItem('uid', user.uid);
+                this.props.router.push('/feed');
+
             } else {
-                // No user is signed in.
+                //localStorage.removeItem('uid');
             }
-        });
+        }.bind(this));
     }
 
     componentWillUnmount() {
@@ -41,25 +43,19 @@ class UserAccount extends React.Component {
         event.preventDefault();
         const email = this.state.email;
         const pass = this.state.password;
-        var signin = function (email, pass) {
+        if(this.state.login === 'Login') {
             firebase.auth().signInWithEmailAndPassword(email, pass).catch(function(error) {
                 // Handle Errors here.
-                if(error.code || error.message);
-                console.log(error.message);
+                if(error.code || error.message)
+                    console.log(error.message);
                 // ...
             });
-        }
-        if(this.state.login === 'Login') {
-            signin(email, pass);
         }
         else {
             firebase.auth().createUserWithEmailAndPassword(email, pass).catch(function(error) {
                 // Handle Errors here.
                 if(error.code || error.message)
                     console.log(error.message);
-                else {
-                    signin(email, pass);
-                }
                 // ...
             });
         }

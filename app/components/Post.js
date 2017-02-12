@@ -1,10 +1,17 @@
 import React from 'react';
+import * as firebase from 'firebase';
 
 class Post extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {};
+    }
+
+    componentDidMount() {
+    }
+
+    componentWillUnmount() {
     }
 
     breakLines(text) {
@@ -28,7 +35,7 @@ class Post extends React.Component {
                         </div>
                     </div>
                     <div className="post-body">
-                        <img className="post-img" src={'/img/mock/' + this.props.post.img}/>
+                        <img className="post-img" src={this.props.post.img}/>
                         <div className="post-text">
                             {this.breakLines(this.props.post.text)}
                         </div>

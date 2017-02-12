@@ -9,7 +9,12 @@ class CreatePostStore {
         this.img = '';
         this.text = '';
         this.location = '';
+        this.file = null;
         this.curr_id = 5;
+    }
+
+    onSetLocation(loc) {
+        this.location = loc;
     }
 
     onTitleChange(event) {

@@ -7,8 +7,9 @@ import UserAccount from './components/UserAccount'
 
 export default (
     <Route component={App}>
-        <Route path='/' component={Home} />
+        <Route path='/feed' component={Home} />
         <Route path='/create' component={CreatePost}/>
-        <Route path='/user' component={UserAccount}/>
+        <Route path='/create/:loc' component={CreatePost}/>
+        <Route path='/' component={UserAccount}/>
     </Route>
 );

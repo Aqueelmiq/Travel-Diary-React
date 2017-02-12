@@ -4,7 +4,7 @@ require('babel-register');
 var swig  = require('swig');
 var React = require('react');
 var ReactDOM = require('react-dom/server');
-var Router = require('react-router');
+var Router = require('react-router').Router;
 var routes = require('./../app/routes');
 var express = require('express');
 var path = require('path');
@@ -15,6 +15,8 @@ var request = require('request');
 var compression = require('compression');
 var favicon = require('serve-favicon');
 var colors = require('colors');
+var match  = require('react-router').match;
+var RouterContext  = require('react-router').RouterContext
 //var async = require('async');
 //var xml2js = require('xml2js');
 //var _ = require('underscore');
@@ -39,13 +41,13 @@ app.use("/api", api);
 
 //Connecting Router to Node
 app.use(function(req, res) {
-    Router.match({ routes: routes.default, location: req.url }, function(err, redirectLocation, renderProps) {
+    match({ routes: routes.default, location: req.url }, function(err, redirectLocation, renderProps) {
         if (err) {
             res.status(500).send(err.message)
         } else if (redirectLocation) {
             res.status(302).redirect(redirectLocation.pathname + redirectLocation.search)
         } else if (renderProps) {
-            var html = ReactDOM.renderToString(React.createElement(Router.RoutingContext, renderProps));
+            var html = ReactDOM.renderToString(React.createElement(RouterContext, renderProps));
             var page = swig.renderFile('views/index.html', { html: html });
             res.status(200).send(page);
         } else {
@@ -53,6 +55,7 @@ app.use(function(req, res) {
         }
     });
 });
+
 
 //Error Handler
 app.use(function(err, req, res, next) {

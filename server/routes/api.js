@@ -68,6 +68,20 @@ router.get('/posts', function(req, res) {
     });
 });
 
+/** USER **/
+
+router.get('/posts', function(req, res) {
+    Post.find({}, function (err, posts) {
+        if(err)
+            res.send("error");
+        else {
+            res.json({
+                posts: posts
+            });
+        }
+    });
+});
+
 
 
 module.exports = router;

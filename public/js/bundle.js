@@ -25,7 +25,7 @@ var AppActions = function () {
     function AppActions() {
         _classCallCheck(this, AppActions);
 
-        this.generateActions('postLike', 'postUnLike', 'addNewPost', 'retrievePosts');
+        this.generateActions('postLike', 'postUnLike', 'addNewPost', 'retrievePosts', 'userDataChange');
     }
 
     _createClass(AppActions, [{
@@ -211,6 +211,10 @@ var _CreatePost = require('./CreatePost');
 
 var _CreatePost2 = _interopRequireDefault(_CreatePost);
 
+var _UserAccount = require('./UserAccount');
+
+var _UserAccount2 = _interopRequireDefault(_UserAccount);
+
 var _firebase = require('firebase');
 
 var firebase = _interopRequireWildcard(_firebase);
@@ -245,14 +249,32 @@ var App = function (_React$Component) {
             _AppActions2.default.getPosts();
             firebase.auth().onAuthStateChanged(function (user) {
                 if (user) {
-                    //localStorage.setItem('uid', user.uid);
-                    //this.props.router.push('/');
-
+                    this.readUser(user.uid);
                 } else {
                     //localStorage.removeItem('uid');
                     this.props.router.push('/');
                 }
             }.bind(this));
+        }
+    }, {
+        key: 'updateUser',
+        value: function updateUser(uid, user) {
+            firebase.database().ref('users/' + uid).set(user);
+        }
+    }, {
+        key: 'readUser',
+        value: function readUser(uid) {
+            firebase.database().ref('users/' + uid).once('value').then(function (snapshot) {
+                if (snapshot.val()) {
+                    _AppActions2.default.userDataChange(snapshot.val());
+                } else {
+                    firebase.database().ref('users/' + uid).set({
+                        followers: ["dummy"],
+                        following: ["dummy"],
+                        liked: ["dummy"]
+                    });
+                }
+            });
         }
     }, {
         key: 'componentWillUnmount',
@@ -278,6 +300,11 @@ var App = function (_React$Component) {
                     return _react2.default.cloneElement(child, {
                         onPostSubmit: _AppActions2.default.newPost
                     });
+                } else if (child.type === _UserAccount2.default) {
+                    return _react2.default.cloneElement(child, {
+                        setUser: _this2.updateUser,
+                        readUser: _this2.readUser
+                    });
                 } else return child;
             });
         }
@@ -302,7 +329,7 @@ var App = function (_React$Component) {
 
 exports.default = App;
 
-},{"../actions/AppActions":1,"../stores/AppStore":15,"./CreatePost":7,"./Home":8,"./Nav":9,"firebase":22,"react":"react"}],7:[function(require,module,exports){
+},{"../actions/AppActions":1,"../stores/AppStore":15,"./CreatePost":7,"./Home":8,"./Nav":9,"./UserAccount":12,"firebase":22,"react":"react"}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -687,6 +714,13 @@ var Nav = function (_React$Component) {
                         '  ',
                         _react2.default.createElement('img', { src: '/img/notifications.png' }),
                         ' '
+                    ),
+                    _react2.default.createElement(
+                        'button',
+                        { id: 'nav-logout', onClick: this.signOut },
+                        '  ',
+                        _react2.default.createElement('img', { src: '/img/logout.svg' }),
+                        ' '
                     )
                 )
             );
@@ -827,6 +861,12 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _firebase = require('firebase');
+
+var firebase = _interopRequireWildcard(_firebase);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -845,7 +885,14 @@ var Profile = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (Profile.__proto__ || Object.getPrototypeOf(Profile)).call(this, props));
 
-        _this.state = {};
+        _this.state = {
+            user: {
+                following: [],
+                followers: [],
+                liked: []
+            },
+            searchText: ''
+        };
         _this.onChange = _this.onChange.bind(_this);
         _this.handleNewItem = _this.handleNewItem.bind(_this);
         return _this;
@@ -853,7 +900,19 @@ var Profile = function (_React$Component) {
 
     _createClass(Profile, [{
         key: 'componentDidMount',
-        value: function componentDidMount() {}
+        value: function componentDidMount() {
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                    firebase.database().ref('users/' + user.uid).once('value').then(function (snapshot) {
+                        if (snapshot.val()) {
+                            this.setState({
+                                user: snapshot.val()
+                            });
+                        }
+                    }.bind(this));
+                }
+            }.bind(this));
+        }
     }, {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {}
@@ -863,40 +922,44 @@ var Profile = function (_React$Component) {
             this.setState(state);
         }
     }, {
+        key: 'searchUpdate',
+        value: function searchUpdate(event) {
+            this.setState({
+                searchText: event.target.value
+            });
+        }
+    }, {
         key: 'handleNewItem',
         value: function handleNewItem(event) {
             event.preventDefault();
-            this.props.router.push('/create');
         }
     }, {
         key: 'render',
         value: function render() {
 
-            var followers = this.props.followers.map(function (user, index) {
+            var followers = this.state.user.followers.map(function (user, index) {
                 return _react2.default.createElement(
                     'div',
                     { key: index },
-                    _react2.default.createElement('img', { src: user.img }),
                     _react2.default.createElement(
                         'p',
                         null,
                         ' ',
-                        user.name,
+                        user,
                         ' '
                     )
                 );
             });
 
-            var following = this.props.following.map(function (user, index) {
+            var following = this.state.user.following.map(function (user, index) {
                 return _react2.default.createElement(
                     'div',
                     { key: index },
-                    _react2.default.createElement('img', { src: user.img }),
                     _react2.default.createElement(
                         'p',
                         null,
                         ' ',
-                        user.name,
+                        user,
                         ' '
                     )
                 );
@@ -908,10 +971,15 @@ var Profile = function (_React$Component) {
                 _react2.default.createElement(
                     'div',
                     { className: 'add-follower' },
-                    _react2.default.createElement('input', { type: 'text', placeholder: 'Type a name', className: 'follower-name-input' }),
+                    _react2.default.createElement(
+                        'h3',
+                        null,
+                        ' Search User '
+                    ),
+                    _react2.default.createElement('input', { type: 'text', value: this.state.searchText, onChange: this.searchUpdate, placeholder: 'Type a name', className: 'follower-name-input' }),
                     _react2.default.createElement(
                         'button',
-                        { onClick: this.handleNewItem },
+                        { className: 'search-button', onClick: this.handleNewItem },
                         ' Search '
                     )
                 ),
@@ -924,14 +992,20 @@ var Profile = function (_React$Component) {
                         _react2.default.createElement(
                             'div',
                             null,
-                            ' Following '
+                            ' ',
+                            _react2.default.createElement(
+                                'h4',
+                                null,
+                                ' Following '
+                            ),
+                            ' '
                         ),
                         _react2.default.createElement(
                             'div',
                             null,
                             ' ',
-                            this.props.following.count,
-                            ' '
+                            this.state.user.following.length + ' ',
+                            ' people following '
                         )
                     ),
                     _react2.default.createElement(
@@ -949,14 +1023,20 @@ var Profile = function (_React$Component) {
                         _react2.default.createElement(
                             'div',
                             null,
-                            ' Following '
+                            ' ',
+                            _react2.default.createElement(
+                                'h4',
+                                null,
+                                ' Following '
+                            ),
+                            ' '
                         ),
                         _react2.default.createElement(
                             'div',
                             null,
                             ' ',
-                            this.props.followers.count,
-                            ' '
+                            this.state.user.followers.length + ' ',
+                            ' followers '
                         )
                     ),
                     _react2.default.createElement(
@@ -974,7 +1054,7 @@ var Profile = function (_React$Component) {
 
 exports.default = Profile;
 
-},{"react":"react"}],12:[function(require,module,exports){
+},{"firebase":22,"react":"react"}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1066,7 +1146,6 @@ var UserAccount = function (_React$Component) {
                     // ...
                 });
             }
-            console.log(this.state.email);
         }
     }, {
         key: 'emailChange',
@@ -1170,6 +1249,7 @@ var config = {
     storageBucket: "traveldiary-9ac5c.appspot.com",
     messagingSenderId: "275348769326"
 };
+
 firebase.initializeApp(config);
 
 _reactDom2.default.render(_react2.default.createElement(
@@ -1251,6 +1331,7 @@ var AppStore = function () {
         this.bindActions(_AppActions2.default);
         this.curr_id = 5;
         this.posts = [];
+        this.user = {};
     }
 
     _createClass(AppStore, [{
@@ -1272,6 +1353,11 @@ var AppStore = function () {
         key: 'onPostUnLike',
         value: function onPostUnLike(data) {
             this.posts[data.postIndex].likes -= 1;
+        }
+    }, {
+        key: 'onUserDataChange',
+        value: function onUserDataChange(user) {
+            this.user = user;
         }
     }]);
 

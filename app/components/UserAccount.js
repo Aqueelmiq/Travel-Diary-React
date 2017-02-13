@@ -24,7 +24,6 @@ class UserAccount extends React.Component {
             if (user) {
                 //localStorage.setItem('uid', user.uid);
                 this.props.router.push('/feed');
-
             } else {
                 //localStorage.removeItem('uid');
             }
@@ -59,9 +58,7 @@ class UserAccount extends React.Component {
                 // ...
             });
         }
-        console.log(this.state.email);
     }
-
 
     emailChange(event) {
         this.setState({

@@ -48,6 +48,7 @@ class Nav extends React.Component {
                     <button id="nav-profile"> <Link to={'/profile'}> <img src='/img/profile.png'/> </Link></button>
                     <button id="nav-friends"> <img src='/img/friends.png'/> </button>
                     <button id="nav-alerts">  <img src='/img/notifications.png'/> </button>
+                    <button id="nav-logout" onClick={this.signOut}>  <img src='/img/logout.svg'/> </button>
                 </div>
             </div>
         );

@@ -8,6 +8,7 @@ class AppActions {
             'postUnLike',
             'addNewPost',
             'retrievePosts',
+            'userDataChange',
         );
     }
 

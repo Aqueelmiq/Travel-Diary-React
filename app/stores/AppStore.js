@@ -6,6 +6,7 @@ class AppStore {
         this.bindActions(AppActions);
         this.curr_id = 5;
         this.posts = [];
+        this.user = {};
     }
 
     onRetrievePosts(posts) {
@@ -19,8 +20,13 @@ class AppStore {
     onPostLike(data) {
         this.posts[data.postIndex].likes += 1;
     }
+
     onPostUnLike(data) {
         this.posts[data.postIndex].likes -= 1;
+    }
+
+    onUserDataChange(user) {
+        this.user = user;
     }
 
 }

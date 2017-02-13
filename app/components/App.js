@@ -4,6 +4,7 @@ import AppStore from '../stores/AppStore';
 import AppActions from '../actions/AppActions';
 import Home from './Home';
 import CreatePost from './CreatePost';
+import UserAccount from './UserAccount';
 import * as firebase from 'firebase';
 
 class App extends React.Component {
@@ -19,14 +20,32 @@ class App extends React.Component {
         AppActions.getPosts();
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
-                //localStorage.setItem('uid', user.uid);
-                //this.props.router.push('/');
-
+                this.readUser(user.uid);
             } else {
                 //localStorage.removeItem('uid');
                 this.props.router.push('/');
             }
         }.bind(this));
+    }
+
+    updateUser(uid, user) {
+        firebase.database().ref('users/' + uid).set(user);
+    }
+
+    readUser(uid) {
+        firebase.database().ref('users/' + uid).once('value')
+            .then(function(snapshot) {
+                if(snapshot.val()) {
+                    AppActions.userDataChange(snapshot.val());
+                }
+                else {
+                    firebase.database().ref('users/' + uid).set({
+                        followers: ["dummy"],
+                        following: ["dummy"],
+                        liked: ["dummy"],
+                    });
+                }
+            });
     }
 
     componentWillUnmount() {
@@ -49,9 +68,14 @@ class App extends React.Component {
                     onPostSubmit: AppActions.newPost,
                 })
             }
+            else if (child.type === UserAccount) {
+                return React.cloneElement(child, {
+                    setUser: this.updateUser,
+                    readUser: this.readUser,
+                })
+            }
             else
                 return child;
-
         })
     }
 

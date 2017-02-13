@@ -11,6 +11,7 @@ var config = {
     storageBucket: "traveldiary-9ac5c.appspot.com",
     messagingSenderId: "275348769326"
 };
+
 firebase.initializeApp(config);
 
 ReactDOM.render(

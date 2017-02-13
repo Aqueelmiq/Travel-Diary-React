@@ -1,16 +1,37 @@
 import React from 'react';
+import * as firebase from 'firebase';
 //import {Link} from 'react-router';
 
 class Profile extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {}
+        this.state = {
+            user: {
+                following: [],
+                followers: [],
+                liked: [],
+            },
+            searchText: '',
+        }
         this.onChange = this.onChange.bind(this);
         this.handleNewItem = this.handleNewItem.bind(this);
     }
 
     componentDidMount() {
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                firebase.database().ref('users/' + user.uid).once('value')
+                    .then(function(snapshot) {
+                        if (snapshot.val()) {
+                            this.setState({
+                                user: snapshot.val()
+                            })
+                        }
+                    }.bind(this));
+            }
+        }.bind(this));
+
     }
 
     componentWillUnmount() {
@@ -20,27 +41,31 @@ class Profile extends React.Component {
         this.setState(state);
     }
 
+    searchUpdate(event) {
+        this.setState({
+            searchText: event.target.value,
+        });
+    }
+
     handleNewItem(event) {
         event.preventDefault();
-        this.props.router.push('/create');
+
     }
 
     render() {
 
-        const followers = this.props.followers.map((user, index) => {
+        const followers = this.state.user.followers.map((user, index) => {
             return (
                 <div key={index}>
-                    <img src={user.img}/>
-                    <p> {user.name} </p>
+                    <p> {user} </p>
                 </div>
             );
         });
 
-        const following = this.props.following.map((user, index) => {
+        const following = this.state.user.following.map((user, index) => {
             return (
                 <div key={index}>
-                    <img src={user.img}/>
-                    <p> {user.name} </p>
+                    <p> {user} </p>
                 </div>
             );
         });
@@ -48,13 +73,14 @@ class Profile extends React.Component {
         return (
             <div>
                 <div className="add-follower">
-                    <input type="text" placeholder="Type a name" className="follower-name-input"/>
-                    <button onClick={this.handleNewItem}> Search </button>
+                    <h3> Search User </h3>
+                    <input type="text" value={this.state.searchText} onChange={this.searchUpdate} placeholder="Type a name" className="follower-name-input"/>
+                    <button className="search-button" onClick={this.handleNewItem}> Search </button>
                 </div>
                 <div className="following box-medium">
                     <div className="box-medium-header">
-                        <div> Following </div>
-                        <div> {this.props.following.count} </div>
+                        <div> <h4> Following </h4> </div>
+                        <div> {this.state.user.following.length + ' '} people following </div>
                     </div>
                     <div className="box-medium-body">
                         {following}
@@ -62,8 +88,8 @@ class Profile extends React.Component {
                 </div>
                 <div className="followers box-medium">
                     <div className="box-medium-header">
-                        <div> Following </div>
-                        <div> {this.props.followers.count} </div>
+                        <div> <h4> Following </h4> </div>
+                        <div> {this.state.user.followers.length + ' '} followers </div>
                     </div>
                     <div className="box-medium-body">
                         {followers}

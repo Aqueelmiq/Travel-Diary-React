@@ -44,6 +44,7 @@ class UserAccount extends React.Component {
                                 followers: ["dummy"],
                                 name: user_name,
                                 liked: ["dummy"],
+                                uid: user.uid,
                             }).then(function () {
                                 this.props.router.push('/feed');
                             }.bind(this));

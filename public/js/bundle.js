@@ -884,7 +884,8 @@ var Profile = function (_React$Component) {
                 following: ["dummy"],
                 followers: ["dummy"],
                 liked: [],
-                name: ''
+                name: '',
+                uid: ''
             },
             searchText: '',
             searchResult: {}
@@ -903,9 +904,10 @@ var Profile = function (_React$Component) {
         value: function componentDidMount() {
             firebase.auth().onAuthStateChanged(function (user) {
                 if (user) {
-                    console.log('User Detected');
+                    console.log(user.uid);
                     firebase.database().ref('users/' + user.uid).once('value').then(function (snapshot) {
                         if (snapshot.val()) {
+                            console.log(snapshot.val().name);
                             this.setState({
                                 user: snapshot.val()
                             });
@@ -949,9 +951,20 @@ var Profile = function (_React$Component) {
         key: 'follow',
         value: function follow(event) {
             event.preventDefault();
-            this.state.user.following.push(this.state.searchResult);
             var uid = firebase.auth().currentUser.uid;
-            firebase.database().ref('users/' + uid).set(this.state.user);
+            var fid = this.state.searchResult.uid;
+            if (fid == uid) console.log("Cannot follow same user");else {
+                this.state.user.following.push({
+                    uid: this.state.searchResult.uid,
+                    name: this.state.searchResult.name
+                });
+                this.state.searchResult.followers.push({
+                    uid: this.state.user.uid,
+                    name: this.state.user.name
+                });
+                firebase.database().ref('users/' + uid).set(this.state.user);
+                firebase.database().ref('users/' + fid).set(this.state.searchResult);
+            }
         }
     }, {
         key: 'backToSearch',
@@ -1108,7 +1121,7 @@ var Profile = function (_React$Component) {
                             _react2.default.createElement(
                                 'h4',
                                 null,
-                                ' Following '
+                                ' Followers '
                             ),
                             ' '
                         ),
@@ -1207,7 +1220,8 @@ var UserAccount = function (_React$Component) {
                                 following: ["dummy"],
                                 followers: ["dummy"],
                                 name: user_name,
-                                liked: ["dummy"]
+                                liked: ["dummy"],
+                                uid: user.uid
                             }).then(function () {
                                 this.props.router.push('/feed');
                             }.bind(this));

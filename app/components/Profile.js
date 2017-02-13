@@ -12,6 +12,7 @@ class Profile extends React.Component {
                 followers: ["dummy"],
                 liked: [],
                 name: '',
+                uid: '',
             },
             searchText: '',
             searchResult: {},
@@ -27,10 +28,11 @@ class Profile extends React.Component {
     componentDidMount() {
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
-                console.log('User Detected');
+                console.log(user.uid);
                 firebase.database().ref('users/' + user.uid).once('value')
                     .then(function(snapshot) {
                         if (snapshot.val()) {
+                            console.log(snapshot.val().name);
                             this.setState({
                                 user: snapshot.val()
                             })
@@ -72,9 +74,22 @@ class Profile extends React.Component {
 
     follow(event) {
         event.preventDefault();
-        this.state.user.following.push(this.state.searchResult);
         var uid = firebase.auth().currentUser.uid;
-        firebase.database().ref('users/' + uid).set(this.state.user);
+        var fid = this.state.searchResult.uid;
+        if(fid == uid)
+            console.log("Cannot follow same user");
+        else {
+            this.state.user.following.push({
+                uid: this.state.searchResult.uid,
+                name: this.state.searchResult.name,
+            });
+            this.state.searchResult.followers.push({
+                uid: this.state.user.uid,
+                name: this.state.user.name,
+            });
+            firebase.database().ref('users/' + uid).set(this.state.user);
+            firebase.database().ref('users/' + fid).set(this.state.searchResult);
+        }
     }
 
     backToSearch(event) {
@@ -152,7 +167,7 @@ class Profile extends React.Component {
                 </div>
                 <div className="followers box-medium">
                     <div className="box-medium-header">
-                        <div> <h4> Following </h4> </div>
+                        <div> <h4> Followers </h4> </div>
                         <div> {this.state.user.followers.length + ' '} followers </div>
                     </div>
                     <div className="box-medium-body">

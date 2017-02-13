@@ -10,6 +10,7 @@ class CreatePostActions {
             'textChange',
             'idIncrement',
             'setLocation',
+            'fileChange',
         );
     }
 }

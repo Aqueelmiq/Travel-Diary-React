@@ -41,6 +41,11 @@ class CreatePostStore {
         this.curr_id += 1;
     }
 
+    onFileChange(file) {
+        console.log('File');
+        this.file = file
+    }
+
 }
 
 export default alt.createStore(CreatePostStore);

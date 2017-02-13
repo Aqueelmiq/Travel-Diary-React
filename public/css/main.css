@@ -7464,7 +7464,8 @@ body {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  width: 95%;
+  width: 94%;
+  margin-left: 25px;
 }
 .post-love {
   display: -webkit-inline-box;

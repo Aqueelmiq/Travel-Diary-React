@@ -28,9 +28,9 @@ class CreatePost extends React.Component {
     }
 
     onDrop(files) {
-        this.setState({
-            file: files[0],
-        });
+        if(files.length > 0) {
+            CreatePostActions.fileChange(files[0]);
+        }
     }
 
     render() {
@@ -64,7 +64,7 @@ class CreatePost extends React.Component {
                                 <textarea className="post-form-desc" value={this.state.text} onChange={CreatePostActions.textChange} placeholder="Description"></textarea>
                             </div>
                             <div className="file-dropper">
-                                <Dropzone className="file-box" accept={"image/*"} onDrop={this.onDrop} multiple={false}>
+                                <Dropzone className="file-box" accept={"image/*"} onDrop={this.onDrop}>
                                     {uploader}
                                 </Dropzone>
                             </div>

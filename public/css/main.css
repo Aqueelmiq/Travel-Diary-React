@@ -7674,3 +7674,6 @@ body {
   border-width: 0px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
+.space-10 {
+  margin-left: 10px;
+}

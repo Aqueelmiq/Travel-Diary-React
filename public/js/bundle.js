@@ -881,15 +881,20 @@ var Profile = function (_React$Component) {
 
         _this.state = {
             user: {
-                following: [],
-                followers: [],
+                following: ["dummy"],
+                followers: ["dummy"],
                 liked: [],
                 name: ''
             },
-            searchText: ''
+            searchText: '',
+            searchResult: {}
         };
+        _this.searchState = false;
         _this.onChange = _this.onChange.bind(_this);
         _this.handleNewItem = _this.handleNewItem.bind(_this);
+        _this.searchUpdate = _this.searchUpdate.bind(_this);
+        _this.backToSearch = _this.backToSearch.bind(_this);
+        _this.follow = _this.follow.bind(_this);
         return _this;
     }
 
@@ -898,6 +903,7 @@ var Profile = function (_React$Component) {
         value: function componentDidMount() {
             firebase.auth().onAuthStateChanged(function (user) {
                 if (user) {
+                    console.log('User Detected');
                     firebase.database().ref('users/' + user.uid).once('value').then(function (snapshot) {
                         if (snapshot.val()) {
                             this.setState({
@@ -926,58 +932,138 @@ var Profile = function (_React$Component) {
     }, {
         key: 'handleNewItem',
         value: function handleNewItem(event) {
+            var found = false;
             event.preventDefault();
+            this.searchState = true;
+            firebase.database().ref('users').orderByChild('name').equalTo(this.state.searchText).on('child_added', function (snapshot) {
+                if (snapshot.val()) {
+                    found = true;
+                    this.setState({
+                        searchResult: snapshot.val()
+                    });
+                }
+            }.bind(this));
+            if (!found) this.setState({ searchResult: "No User Found" });
+        }
+    }, {
+        key: 'follow',
+        value: function follow(event) {
+            event.preventDefault();
+            this.state.user.following.push(this.state.searchResult);
+            var uid = firebase.auth().currentUser.uid;
+            firebase.database().ref('users/' + uid).set(this.state.user);
+        }
+    }, {
+        key: 'backToSearch',
+        value: function backToSearch(event) {
+            event.preventDefault();
+            this.searchState = false;
+            this.setState({
+                searchResult: {}
+            });
         }
     }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
+            var searchArea = function searchArea() {
+                if (_this2.searchState) {
+                    if (_this2.state.searchResult === "No User Found") {
+                        return _react2.default.createElement(
+                            'div',
+                            { className: 'search-result box-medium' },
+                            _react2.default.createElement(
+                                'h3',
+                                null,
+                                ' ',
+                                _this2.state.searchResult,
+                                ' '
+                            ),
+                            _react2.default.createElement(
+                                'button',
+                                { className: 'search-button', onClick: _this2.backToSearch },
+                                ' Back '
+                            )
+                        );
+                    } else {
+                        return _react2.default.createElement(
+                            'div',
+                            { className: 'search-result box-medium' },
+                            _react2.default.createElement(
+                                'h3',
+                                null,
+                                ' ',
+                                _this2.state.searchResult.name,
+                                ' '
+                            ),
+                            _react2.default.createElement(
+                                'button',
+                                { className: 'search-button', onClick: _this2.follow },
+                                ' Follow '
+                            ),
+                            _react2.default.createElement(
+                                'button',
+                                { className: 'search-button space-10', onClick: _this2.backToSearch },
+                                ' Back '
+                            )
+                        );
+                    }
+                } else {
+                    return _react2.default.createElement(
+                        'div',
+                        { className: 'add-follower' },
+                        _react2.default.createElement(
+                            'h3',
+                            null,
+                            ' Search User '
+                        ),
+                        _react2.default.createElement('input', { type: 'text', value: _this2.state.searchText, onChange: _this2.searchUpdate, placeholder: 'Type a name', className: 'follower-name-input' }),
+                        _react2.default.createElement(
+                            'button',
+                            { className: 'search-button', onClick: _this2.handleNewItem },
+                            ' Search '
+                        )
+                    );
+                }
+            };
 
             var followers = this.state.user.followers.map(function (user, index) {
-                return _react2.default.createElement(
-                    'div',
-                    { key: index },
-                    _react2.default.createElement(
-                        'p',
-                        null,
-                        ' ',
-                        user,
-                        ' '
-                    )
-                );
+                if (user.name) {
+                    return _react2.default.createElement(
+                        'div',
+                        { key: index },
+                        _react2.default.createElement(
+                            'p',
+                            null,
+                            ' ',
+                            user.name,
+                            ' '
+                        )
+                    );
+                }
             });
 
             var following = this.state.user.following.map(function (user, index) {
-                return _react2.default.createElement(
-                    'div',
-                    { key: index },
-                    _react2.default.createElement(
-                        'p',
-                        null,
-                        ' ',
-                        user,
-                        ' '
-                    )
-                );
+                if (user.name) {
+                    return _react2.default.createElement(
+                        'div',
+                        { key: index },
+                        _react2.default.createElement(
+                            'p',
+                            null,
+                            ' ',
+                            user.name,
+                            ' '
+                        )
+                    );
+                }
             });
 
             return _react2.default.createElement(
                 'div',
                 null,
-                _react2.default.createElement(
-                    'div',
-                    { className: 'add-follower' },
-                    _react2.default.createElement(
-                        'h3',
-                        null,
-                        ' Search User '
-                    ),
-                    _react2.default.createElement('input', { type: 'text', value: this.state.searchText, onChange: this.searchUpdate, placeholder: 'Type a name', className: 'follower-name-input' }),
-                    _react2.default.createElement(
-                        'button',
-                        { className: 'search-button', onClick: this.handleNewItem },
-                        ' Search '
-                    )
-                ),
+                searchArea(),
                 _react2.default.createElement(
                     'div',
                     { className: 'following box-medium' },
@@ -1119,7 +1205,7 @@ var UserAccount = function (_React$Component) {
                         } else {
                             firebase.database().ref('users/' + user.uid).set({
                                 following: ["dummy"],
-                                password: ["dummy"],
+                                followers: ["dummy"],
                                 name: user_name,
                                 liked: ["dummy"]
                             }).then(function () {

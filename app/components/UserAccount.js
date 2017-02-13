@@ -41,7 +41,7 @@ class UserAccount extends React.Component {
                         else {
                             firebase.database().ref('users/' + user.uid).set({
                                 following: ["dummy"],
-                                password: ["dummy"],
+                                followers: ["dummy"],
                                 name: user_name,
                                 liked: ["dummy"],
                             }).then(function () {

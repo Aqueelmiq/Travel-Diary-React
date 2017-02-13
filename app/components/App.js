@@ -39,11 +39,6 @@ class App extends React.Component {
                     AppActions.userDataChange(snapshot.val());
                 }
                 else {
-                    firebase.database().ref('users/' + uid).set({
-                        followers: ["dummy"],
-                        following: ["dummy"],
-                        liked: ["dummy"],
-                    });
                 }
             });
     }

@@ -11,6 +11,7 @@ class Profile extends React.Component {
                 following: [],
                 followers: [],
                 liked: [],
+                name: '',
             },
             searchText: '',
         }
@@ -49,7 +50,7 @@ class Profile extends React.Component {
 
     handleNewItem(event) {
         event.preventDefault();
-
+        
     }
 
     render() {

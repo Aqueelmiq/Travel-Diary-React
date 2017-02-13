@@ -9,6 +9,7 @@ class UserAccount extends React.Component {
         this.state = {
             email: '',
             password: '',
+            name: '',
             login: "Login",
         }
         this.hintText = "New User? Register Here."
@@ -16,14 +17,38 @@ class UserAccount extends React.Component {
         this.registerUser = this.registerUser.bind(this);
         this.emailChange = this.emailChange.bind(this);
         this.passChange = this.passChange.bind(this);
+        this.nameChange = this.nameChange.bind(this);
         //this.onChange = this.onChange.bind(this);
     }
 
     componentDidMount() {
         firebase.auth().onAuthStateChanged(function(user) {
+            var user_name = this.state.name;
             if (user) {
                 //localStorage.setItem('uid', user.uid);
-                this.props.router.push('/feed');
+                firebase.database().ref('users/' + user.uid).once('value')
+                    .then(function(snapshot) {
+                        if(snapshot.val()) {
+                            if(snapshot.val().name)
+                                this.props.router.push('/feed');
+                            else {
+                                firebase.database().ref('users/' + user.uid + '/name').set(user_name)
+                                    .then(function () {
+                                        this.props.router.push('/feed');
+                                    });
+                            }
+                        }
+                        else {
+                            firebase.database().ref('users/' + user.uid).set({
+                                following: ["dummy"],
+                                password: ["dummy"],
+                                name: user_name,
+                                liked: ["dummy"],
+                            }).then(function () {
+                                this.props.router.push('/feed');
+                            }.bind(this));
+                        }
+                    }.bind(this));
             } else {
                 //localStorage.removeItem('uid');
             }
@@ -66,6 +91,12 @@ class UserAccount extends React.Component {
         });
     }
 
+    nameChange(event) {
+        this.setState({
+            name: event.target.value,
+        });
+    }
+
     passChange(event) {
         this.setState({
             password: event.target.value,
@@ -85,18 +116,38 @@ class UserAccount extends React.Component {
     }
 
     render() {
-        return (
-            <div className="account">
-                <div className="login-form-logo">
-                    <Link to="/"> <img src='/img/logo.svg' alt="Logo"/> </Link>
-                </div>
-                <div className="login-form-fields">
+        const form = () => {
+            if(this.state.login === "Login") {
+                return(
                     <form onSubmit={this.registerUser}>
                         <input type="text" className="email-field" value={this.state.email} placeholder="Email Address" onChange={this.emailChange}/>
                         <input type="password" className="password-field" value={this.state.password} placeholder="Password" onChange={this.passChange}/>
                         <input type="submit" className="login-button" value={this.state.login}/>
                         <div onClick={this.switchForm}> {this.hintText} </div>
                     </form>
+                );
+            }
+            else {
+                return(
+                    <form onSubmit={this.registerUser}>
+                        <input type="text" className="name-field" value={this.state.name} placeholder="Name" onChange={this.nameChange}/>
+                        <input type="text" className="email-field" value={this.state.email} placeholder="Email Address" onChange={this.emailChange}/>
+                        <input type="password" className="password-field" value={this.state.password} placeholder="Password" onChange={this.passChange}/>
+                        <input type="submit" className="login-button" value={this.state.login}/>
+                        <div onClick={this.switchForm}> {this.hintText} </div>
+                    </form>
+                );
+            }
+
+        }
+
+        return (
+            <div className="account">
+                <div className="login-form-logo">
+                    <Link to="/"> <img src='/img/logo.svg' alt="Logo"/> </Link>
+                </div>
+                <div className="login-form-fields">
+                    {form()}
                 </div>
             </div>
         );

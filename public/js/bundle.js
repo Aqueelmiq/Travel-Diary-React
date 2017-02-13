@@ -267,13 +267,7 @@ var App = function (_React$Component) {
             firebase.database().ref('users/' + uid).once('value').then(function (snapshot) {
                 if (snapshot.val()) {
                     _AppActions2.default.userDataChange(snapshot.val());
-                } else {
-                    firebase.database().ref('users/' + uid).set({
-                        followers: ["dummy"],
-                        following: ["dummy"],
-                        liked: ["dummy"]
-                    });
-                }
+                } else {}
             });
         }
     }, {
@@ -889,7 +883,8 @@ var Profile = function (_React$Component) {
             user: {
                 following: [],
                 followers: [],
-                liked: []
+                liked: [],
+                name: ''
             },
             searchText: ''
         };
@@ -1094,6 +1089,7 @@ var UserAccount = function (_React$Component) {
         _this.state = {
             email: '',
             password: '',
+            name: '',
             login: "Login"
         };
         _this.hintText = "New User? Register Here.";
@@ -1101,6 +1097,7 @@ var UserAccount = function (_React$Component) {
         _this.registerUser = _this.registerUser.bind(_this);
         _this.emailChange = _this.emailChange.bind(_this);
         _this.passChange = _this.passChange.bind(_this);
+        _this.nameChange = _this.nameChange.bind(_this);
         //this.onChange = this.onChange.bind(this);
         return _this;
     }
@@ -1109,9 +1106,27 @@ var UserAccount = function (_React$Component) {
         key: 'componentDidMount',
         value: function componentDidMount() {
             firebase.auth().onAuthStateChanged(function (user) {
+                var user_name = this.state.name;
                 if (user) {
                     //localStorage.setItem('uid', user.uid);
-                    this.props.router.push('/feed');
+                    firebase.database().ref('users/' + user.uid).once('value').then(function (snapshot) {
+                        if (snapshot.val()) {
+                            if (snapshot.val().name) this.props.router.push('/feed');else {
+                                firebase.database().ref('users/' + user.uid + '/name').set(user_name).then(function () {
+                                    this.props.router.push('/feed');
+                                });
+                            }
+                        } else {
+                            firebase.database().ref('users/' + user.uid).set({
+                                following: ["dummy"],
+                                password: ["dummy"],
+                                name: user_name,
+                                liked: ["dummy"]
+                            }).then(function () {
+                                this.props.router.push('/feed');
+                            }.bind(this));
+                        }
+                    }.bind(this));
                 } else {
                     //localStorage.removeItem('uid');
                 }
@@ -1155,6 +1170,13 @@ var UserAccount = function (_React$Component) {
             });
         }
     }, {
+        key: 'nameChange',
+        value: function nameChange(event) {
+            this.setState({
+                name: event.target.value
+            });
+        }
+    }, {
         key: 'passChange',
         value: function passChange(event) {
             this.setState({
@@ -1176,6 +1198,43 @@ var UserAccount = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
+            var form = function form() {
+                if (_this2.state.login === "Login") {
+                    return _react2.default.createElement(
+                        'form',
+                        { onSubmit: _this2.registerUser },
+                        _react2.default.createElement('input', { type: 'text', className: 'email-field', value: _this2.state.email, placeholder: 'Email Address', onChange: _this2.emailChange }),
+                        _react2.default.createElement('input', { type: 'password', className: 'password-field', value: _this2.state.password, placeholder: 'Password', onChange: _this2.passChange }),
+                        _react2.default.createElement('input', { type: 'submit', className: 'login-button', value: _this2.state.login }),
+                        _react2.default.createElement(
+                            'div',
+                            { onClick: _this2.switchForm },
+                            ' ',
+                            _this2.hintText,
+                            ' '
+                        )
+                    );
+                } else {
+                    return _react2.default.createElement(
+                        'form',
+                        { onSubmit: _this2.registerUser },
+                        _react2.default.createElement('input', { type: 'text', className: 'name-field', value: _this2.state.name, placeholder: 'Name', onChange: _this2.nameChange }),
+                        _react2.default.createElement('input', { type: 'text', className: 'email-field', value: _this2.state.email, placeholder: 'Email Address', onChange: _this2.emailChange }),
+                        _react2.default.createElement('input', { type: 'password', className: 'password-field', value: _this2.state.password, placeholder: 'Password', onChange: _this2.passChange }),
+                        _react2.default.createElement('input', { type: 'submit', className: 'login-button', value: _this2.state.login }),
+                        _react2.default.createElement(
+                            'div',
+                            { onClick: _this2.switchForm },
+                            ' ',
+                            _this2.hintText,
+                            ' '
+                        )
+                    );
+                }
+            };
+
             return _react2.default.createElement(
                 'div',
                 { className: 'account' },
@@ -1193,20 +1252,7 @@ var UserAccount = function (_React$Component) {
                 _react2.default.createElement(
                     'div',
                     { className: 'login-form-fields' },
-                    _react2.default.createElement(
-                        'form',
-                        { onSubmit: this.registerUser },
-                        _react2.default.createElement('input', { type: 'text', className: 'email-field', value: this.state.email, placeholder: 'Email Address', onChange: this.emailChange }),
-                        _react2.default.createElement('input', { type: 'password', className: 'password-field', value: this.state.password, placeholder: 'Password', onChange: this.passChange }),
-                        _react2.default.createElement('input', { type: 'submit', className: 'login-button', value: this.state.login }),
-                        _react2.default.createElement(
-                            'div',
-                            { onClick: this.switchForm },
-                            ' ',
-                            this.hintText,
-                            ' '
-                        )
-                    )
+                    form()
                 )
             );
         }

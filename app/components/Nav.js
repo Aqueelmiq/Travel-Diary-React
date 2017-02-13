@@ -10,6 +10,7 @@ class Nav extends React.Component {
         super(props);
         this.state = NavStore.getState();
         this.onChange = this.onChange.bind(this);
+        this.onSearch = this.onSearch.bind(this);
     }
 
     componentDidMount() {
@@ -32,6 +33,11 @@ class Nav extends React.Component {
         });
     }
 
+    onSearch(event) {
+        event.preventDefault();
+        this.props.router.push('search/'+this.state.searchText);
+    }
+    
     render() {
         return (
             <div className="Nav">
@@ -39,7 +45,7 @@ class Nav extends React.Component {
                     <Link to="/"> <img src='/img/logo.svg' alt="Logo"/> </Link>
                 </div>
                 <div className="search">
-                    <form>
+                    <form onSubmit={this.onSearch}>
                         <input type="text" className="searchBar" value={this.state.searchText} placeholder="Search here" onChange={NavActions.searchTextUpdate}/>
                         <input type="submit" className="searchButton" value=""/>
                     </form>

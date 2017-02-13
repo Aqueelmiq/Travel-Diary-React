@@ -68,10 +68,10 @@ router.get('/posts', function(req, res) {
     });
 });
 
-/** USER **/
-
-router.get('/posts', function(req, res) {
-    Post.find({}, function (err, posts) {
+router.get('/posts/search/:query', function(req, res) {
+    var query = req.params.query;
+    var regxp = "/"+ query+"/";
+    Post.find({ text: regxp }, function (err, posts) {
         if(err)
             res.send("error");
         else {
@@ -81,7 +81,6 @@ router.get('/posts', function(req, res) {
         }
     });
 });
-
 
 
 module.exports = router;

@@ -94,7 +94,7 @@ var AppActions = function () {
 
 exports.default = _alt2.default.createActions(AppActions);
 
-},{"../alt":5,"firebase":22}],2:[function(require,module,exports){
+},{"../alt":6,"firebase":25}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -117,7 +117,7 @@ var CreatePostActions = function CreatePostActions() {
 
 exports.default = _alt2.default.createActions(CreatePostActions);
 
-},{"../alt":5}],3:[function(require,module,exports){
+},{"../alt":6}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -140,7 +140,7 @@ var HomeActions = function HomeActions() {
 
 exports.default = _alt2.default.createActions(HomeActions);
 
-},{"../alt":5}],4:[function(require,module,exports){
+},{"../alt":6}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -163,7 +163,61 @@ var NavActions = function NavActions() {
 
 exports.default = _alt2.default.createActions(NavActions);
 
-},{"../alt":5}],5:[function(require,module,exports){
+},{"../alt":6}],5:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _alt = require('../alt');
+
+var _alt2 = _interopRequireDefault(_alt);
+
+var _firebase = require('firebase');
+
+var firebase = _interopRequireWildcard(_firebase);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var SearchActions = function () {
+    function SearchActions() {
+        _classCallCheck(this, SearchActions);
+
+        this.generateActions('usersUpdate', 'postsUpdate');
+    }
+
+    _createClass(SearchActions, [{
+        key: 'loadResults',
+        value: function loadResults(query) {
+            var _this = this;
+
+            console.log(query);
+            $.ajax({ url: '/api/posts/search/' + query }).done(function (data) {
+                _this.actions.postsUpdate(data.posts);
+                firebase.database().ref('users').orderByChild('name').equalTo(query).on('child_added', function (snapshot) {
+                    if (snapshot.val()) {
+                        this.actions.usersUpdate([snapshot.val()]);
+                    }
+                }.bind(_this));
+            }).fail(function (jqXhr) {
+                //this.actions.getTwoCharactersFail(jqXhr.responseJSON.message);
+            });
+        }
+    }]);
+
+    return SearchActions;
+}();
+
+exports.default = _alt2.default.createActions(SearchActions);
+
+},{"../alt":6,"firebase":25}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -178,7 +232,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 exports.default = new _alt2.default();
 
-},{"alt":"alt"}],6:[function(require,module,exports){
+},{"alt":"alt"}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -323,7 +377,7 @@ var App = function (_React$Component) {
 
 exports.default = App;
 
-},{"../actions/AppActions":1,"../stores/AppStore":15,"./CreatePost":7,"./Home":8,"./Nav":9,"./UserAccount":12,"firebase":22,"react":"react"}],7:[function(require,module,exports){
+},{"../actions/AppActions":1,"../stores/AppStore":17,"./CreatePost":8,"./Home":9,"./Nav":10,"./UserAccount":14,"firebase":25,"react":"react"}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -472,7 +526,7 @@ var CreatePost = function (_React$Component) {
 
 exports.default = CreatePost;
 
-},{"../actions/CreatePostActions":2,"../stores/CreatePostStore":16,"react":"react","react-dropzone":25}],8:[function(require,module,exports){
+},{"../actions/CreatePostActions":2,"../stores/CreatePostStore":18,"react":"react","react-dropzone":28}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -579,7 +633,7 @@ var Home = function (_React$Component) {
 
 exports.default = Home;
 
-},{"../actions/HomeActions":3,"../stores/HomeStore":17,"./Post":10,"react":"react"}],9:[function(require,module,exports){
+},{"../actions/HomeActions":3,"../stores/HomeStore":19,"./Post":11,"react":"react"}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -626,6 +680,7 @@ var Nav = function (_React$Component) {
 
         _this.state = _NavStore2.default.getState();
         _this.onChange = _this.onChange.bind(_this);
+        _this.onSearch = _this.onSearch.bind(_this);
         return _this;
     }
 
@@ -654,6 +709,12 @@ var Nav = function (_React$Component) {
             });
         }
     }, {
+        key: 'onSearch',
+        value: function onSearch(event) {
+            event.preventDefault();
+            this.props.router.push('search/' + this.state.searchText);
+        }
+    }, {
         key: 'render',
         value: function render() {
             return _react2.default.createElement(
@@ -675,7 +736,7 @@ var Nav = function (_React$Component) {
                     { className: 'search' },
                     _react2.default.createElement(
                         'form',
-                        null,
+                        { onSubmit: this.onSearch },
                         _react2.default.createElement('input', { type: 'text', className: 'searchBar', value: this.state.searchText, placeholder: 'Search here', onChange: _NavActions2.default.searchTextUpdate }),
                         _react2.default.createElement('input', { type: 'submit', className: 'searchButton', value: '' })
                     )
@@ -726,7 +787,7 @@ var Nav = function (_React$Component) {
 
 exports.default = Nav;
 
-},{"../actions/NavActions":4,"../stores/NavStore":18,"firebase":22,"react":"react","react-router":"react-router"}],10:[function(require,module,exports){
+},{"../actions/NavActions":4,"../stores/NavStore":20,"firebase":25,"react":"react","react-router":"react-router"}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -842,7 +903,7 @@ var Post = function (_React$Component) {
 
 exports.default = Post;
 
-},{"firebase":22,"react":"react"}],11:[function(require,module,exports){
+},{"firebase":25,"react":"react"}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1148,7 +1209,125 @@ var Profile = function (_React$Component) {
 
 exports.default = Profile;
 
-},{"firebase":22,"react":"react"}],12:[function(require,module,exports){
+},{"firebase":25,"react":"react"}],13:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _SearchStore = require('../stores/SearchStore');
+
+var _SearchStore2 = _interopRequireDefault(_SearchStore);
+
+var _SearchActions = require('../actions/SearchActions');
+
+var _SearchActions2 = _interopRequireDefault(_SearchActions);
+
+var _Post = require('./Post');
+
+var _Post2 = _interopRequireDefault(_Post);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+//import {Link} from 'react-router';
+
+
+var Search = function (_React$Component) {
+    _inherits(Search, _React$Component);
+
+    function Search(props) {
+        _classCallCheck(this, Search);
+
+        var _this = _possibleConstructorReturn(this, (Search.__proto__ || Object.getPrototypeOf(Search)).call(this, props));
+
+        _this.state = _SearchStore2.default.getState();
+        _this.onChange = _this.onChange.bind(_this);
+        return _this;
+    }
+
+    _createClass(Search, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            _SearchStore2.default.listen(this.onChange);
+            _SearchActions2.default.loadResults(this.props.params.query);
+        }
+    }, {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            _SearchStore2.default.unlisten(this.onChange);
+        }
+    }, {
+        key: 'onChange',
+        value: function onChange(state) {
+            this.setState(state);
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+
+            var posts = this.state.posts.map(function (post, index) {
+                return _react2.default.createElement(_Post2.default, { key: index, post: post });
+            });
+
+            var users = this.state.users.map(function (user, index) {
+                return _react2.default.createElement(
+                    'div',
+                    { key: index },
+                    ' ',
+                    user.name,
+                    ' '
+                );
+            });
+
+            var results = function results() {
+                var items = [];
+                if (posts) items.push(_react2.default.createElement(
+                    'div',
+                    { className: 'box-medium posts', key: 1 },
+                    ' ',
+                    posts,
+                    ' '
+                ));
+                if (users) items.push(_react2.default.createElement(
+                    'div',
+                    { className: 'box-medium users', key: 2 },
+                    ' ',
+                    users,
+                    ' '
+                ));
+                return items;
+            };
+
+            return _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement(
+                    'div',
+                    { className: 'results' },
+                    results()
+                )
+            );
+        }
+    }]);
+
+    return Search;
+}(_react2.default.Component);
+
+exports.default = Search;
+
+},{"../actions/SearchActions":5,"../stores/SearchStore":21,"./Post":11,"react":"react"}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1363,7 +1542,7 @@ var UserAccount = function (_React$Component) {
 
 exports.default = UserAccount;
 
-},{"firebase":22,"react":"react","react-router":"react-router"}],13:[function(require,module,exports){
+},{"firebase":25,"react":"react","react-router":"react-router"}],15:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -1404,7 +1583,7 @@ _reactDom2.default.render(_react2.default.createElement(
     _routes2.default
 ), document.getElementById('app'));
 
-},{"./routes":14,"firebase":22,"react":"react","react-dom":"react-dom","react-router":"react-router"}],14:[function(require,module,exports){
+},{"./routes":16,"firebase":25,"react":"react","react-dom":"react-dom","react-router":"react-router"}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1437,19 +1616,24 @@ var _Profile = require('./components/Profile');
 
 var _Profile2 = _interopRequireDefault(_Profile);
 
+var _Search = require('./components/Search');
+
+var _Search2 = _interopRequireDefault(_Search);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = _react2.default.createElement(
     _reactRouter.Route,
     { component: _App2.default },
     _react2.default.createElement(_reactRouter.Route, { path: '/feed', component: _Home2.default }),
+    _react2.default.createElement(_reactRouter.Route, { path: '/search/:query', component: _Search2.default }),
     _react2.default.createElement(_reactRouter.Route, { path: '/create', component: _CreatePost2.default }),
     _react2.default.createElement(_reactRouter.Route, { path: '/create/:loc', component: _CreatePost2.default }),
     _react2.default.createElement(_reactRouter.Route, { path: '/profile', component: _Profile2.default }),
     _react2.default.createElement(_reactRouter.Route, { path: '/', component: _UserAccount2.default })
 );
 
-},{"./components/App":6,"./components/CreatePost":7,"./components/Home":8,"./components/Profile":11,"./components/UserAccount":12,"react":"react","react-router":"react-router"}],15:[function(require,module,exports){
+},{"./components/App":7,"./components/CreatePost":8,"./components/Home":9,"./components/Profile":12,"./components/Search":13,"./components/UserAccount":14,"react":"react","react-router":"react-router"}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1512,7 +1696,7 @@ var AppStore = function () {
 
 exports.default = _alt2.default.createStore(AppStore);
 
-},{"../actions/AppActions":1,"../alt":5}],16:[function(require,module,exports){
+},{"../actions/AppActions":1,"../alt":6}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1595,7 +1779,7 @@ var CreatePostStore = function () {
 
 exports.default = _alt2.default.createStore(CreatePostStore);
 
-},{"../actions/CreatePostActions":2,"../alt":5}],17:[function(require,module,exports){
+},{"../actions/CreatePostActions":2,"../alt":6}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1636,7 +1820,7 @@ var HomeStore = function () {
 
 exports.default = _alt2.default.createStore(HomeStore);
 
-},{"../actions/HomeActions":3,"../alt":5}],18:[function(require,module,exports){
+},{"../actions/HomeActions":3,"../alt":6}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1677,7 +1861,54 @@ var NavStore = function () {
 
 exports.default = _alt2.default.createStore(NavStore);
 
-},{"../actions/NavActions":4,"../alt":5}],19:[function(require,module,exports){
+},{"../actions/NavActions":4,"../alt":6}],21:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _alt = require('../alt');
+
+var _alt2 = _interopRequireDefault(_alt);
+
+var _SearchActions = require('../actions/SearchActions');
+
+var _SearchActions2 = _interopRequireDefault(_SearchActions);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var SearchStore = function () {
+    function SearchStore() {
+        _classCallCheck(this, SearchStore);
+
+        this.bindActions(_SearchActions2.default);
+        this.users = [];
+        this.posts = [];
+    }
+
+    _createClass(SearchStore, [{
+        key: 'onUsersUpdate',
+        value: function onUsersUpdate(users) {
+            this.users = users;
+        }
+    }, {
+        key: 'onPostsUpdate',
+        value: function onPostsUpdate(posts) {
+            this.posts = posts;
+        }
+    }]);
+
+    return SearchStore;
+}();
+
+exports.default = _alt2.default.createStore(SearchStore);
+
+},{"../actions/SearchActions":5,"../alt":6}],22:[function(require,module,exports){
 (function (global){
 var firebase = (function(){
 /*! @license Firebase v3.6.9
@@ -1714,7 +1945,7 @@ module.exports = firebase;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],20:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 (function (global){
 var firebase = require('./app');
 (function(){
@@ -1960,7 +2191,7 @@ module.exports = firebase.auth;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./app":19}],21:[function(require,module,exports){
+},{"./app":22}],24:[function(require,module,exports){
 (function (global){
 var firebase = require('./app');
 (function(){
@@ -2229,7 +2460,7 @@ module.exports = firebase.database;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./app":19}],22:[function(require,module,exports){
+},{"./app":22}],25:[function(require,module,exports){
 /**
  *  Firebase libraries for browser - npm package.
  *
@@ -2244,7 +2475,7 @@ require('./storage');
 require('./messaging');
 module.exports = firebase;
 
-},{"./app":19,"./auth":20,"./database":21,"./messaging":23,"./storage":24}],23:[function(require,module,exports){
+},{"./app":22,"./auth":23,"./database":24,"./messaging":26,"./storage":27}],26:[function(require,module,exports){
 (function (global){
 var firebase = require('./app');
 (function(){
@@ -2288,7 +2519,7 @@ module.exports = firebase.messaging;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./app":19}],24:[function(require,module,exports){
+},{"./app":22}],27:[function(require,module,exports){
 (function (global){
 var firebase = require('./app');
 (function(){
@@ -2347,7 +2578,7 @@ module.exports = firebase.storage;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./app":19}],25:[function(require,module,exports){
+},{"./app":22}],28:[function(require,module,exports){
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory(require("react"));
@@ -2859,6 +3090,6 @@ return /******/ (function(modules) { // webpackBootstrap
 });
 ;
 
-},{"react":"react"}]},{},[13])
+},{"react":"react"}]},{},[15])
 
 //# sourceMappingURL=bundle.js.map

@@ -32,15 +32,27 @@ class Search extends React.Component {
         });
 
         const users = this.state.users.map((user, index) => {
-            return <div key={index}> {user.name} </div>
+            return (
+                <div key={index}>
+                    <h3> {user.name} </h3>
+                    <p> Followers: {" " + user.followers.length} </p>
+                    <p> Following: {" " + user.following.length} </p>
+                </div>
+            );
         });
 
         const results = () => {
             var items = [];
-            if(posts)
-                items.push(<div className="box-medium posts" key={1}> {posts} </div>);
-            if(users)
-                items.push(<div className="box-medium users" key={2}> {users} </div>)
+            if(users.length > 0) {
+                items.push(<h2 className="medium-align"> Users: </h2>);
+                items.push(<div className="box-medium users" key={1}> {users} </div>);
+            }
+            if(posts.length > 0) {
+                items.push(<h2 className="medium-align"> Posts: </h2>);
+                items.push(<div key={2}> {posts} </div>);
+            }
+            if(posts.length == 0 && users.length == 0)
+                items.push(<div className="box-medium users" key={3}> <h3> Nothing Found </h3> </div>);
             return items;
         }
 

@@ -29,7 +29,7 @@ class Home extends React.Component {
 
     handleNewItem(event) {
         event.preventDefault();
-        window.location = '/create/' + this.state.newItemText;
+        this.props.router.push('/create/' + this.state.newItemText);
     }
 
     render() {

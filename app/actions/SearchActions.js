@@ -10,7 +10,7 @@ class SearchActions {
     }
 
     loadResults(query) {
-        console.log(query);
+        query = encodeURI(query);
         $.ajax({ url: '/api/posts/search/' + query })
             .done(data => {
                 this.actions.postsUpdate(data.posts);

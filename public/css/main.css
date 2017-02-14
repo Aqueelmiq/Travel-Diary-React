@@ -7642,6 +7642,23 @@ body {
   font-size: 1.2em;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
+.search-button {
+  color: whitesmoke;
+  width: 100px;
+  height: 49px;
+  background-color: #0b0b0b;
+  border-width: 0px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+.space-10 {
+  margin-left: 10px;
+}
+.medium-align {
+  font-family: Raleway;
+  margin-left: auto;
+  margin-right: auto;
+  width: 85%;
+}
 .box-medium {
   font-family: Raleway;
   margin-left: auto;
@@ -7665,15 +7682,4 @@ body {
       -ms-flex-align: center;
           align-items: center;
   width: 100%;
-}
-.search-button {
-  color: whitesmoke;
-  width: 100px;
-  height: 49px;
-  background-color: #0b0b0b;
-  border-width: 0px;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
-}
-.space-10 {
-  margin-left: 10px;
 }

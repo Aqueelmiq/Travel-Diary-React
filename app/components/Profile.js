@@ -155,6 +155,11 @@ class Profile extends React.Component {
 
         return (
             <div>
+                <div className="medium-align profile-details">
+                    <img src="/img/profile-pic.png"/>
+                    <h3> {this.state.user.name} </h3>
+                    <p> <br/></p>
+                </div>
                 {searchArea()}
                 <div className="following box-medium">
                     <div className="box-medium-header">

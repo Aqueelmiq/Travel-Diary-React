@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var Post = require('../models/Post');
 
-
 /*
  * API ROUTES
  */
@@ -70,8 +69,7 @@ router.get('/posts', function(req, res) {
 
 router.get('/posts/search/:query', function(req, res) {
     var query = req.params.query;
-    var regxp = "/"+ query+"/";
-    Post.find({ text: regxp }, function (err, posts) {
+    Post.find({$or: [{ text: new RegExp(query, "i") }, { title: new RegExp(query, "i") }]}, function (err, posts) {
         if(err)
             res.send("error");
         else {

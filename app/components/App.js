@@ -13,6 +13,7 @@ class App extends React.Component {
         super(props);
         this.state = AppStore.getState();
         this.onChange = this.onChange.bind(this);
+        this.navigate = this.navigate.bind(this);
     }
 
     componentDidMount() {
@@ -74,10 +75,14 @@ class App extends React.Component {
         })
     }
 
+    navigate(location) {
+        this.props.router.push(location);
+    }
+
     render() {
         return (
             <div className="main">
-                <Nav/>
+                <Nav navigate={this.navigate}/>
                 <div className="container">
                     {this.renderChildren()}
                 </div>

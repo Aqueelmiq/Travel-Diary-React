@@ -64,7 +64,6 @@ app.use(function(err, req, res, next) {
     res.send({ message: err.message });
 });
 
-
 /**
  * Socket.io counter.
  */

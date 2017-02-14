@@ -198,7 +198,7 @@ var SearchActions = function () {
         value: function loadResults(query) {
             var _this = this;
 
-            console.log(query);
+            query = encodeURI(query);
             $.ajax({ url: '/api/posts/search/' + query }).done(function (data) {
                 _this.actions.postsUpdate(data.posts);
                 firebase.database().ref('users').orderByChild('name').equalTo(query).on('child_added', function (snapshot) {
@@ -293,6 +293,7 @@ var App = function (_React$Component) {
 
         _this.state = _AppStore2.default.getState();
         _this.onChange = _this.onChange.bind(_this);
+        _this.navigate = _this.navigate.bind(_this);
         return _this;
     }
 
@@ -357,12 +358,17 @@ var App = function (_React$Component) {
             });
         }
     }, {
+        key: 'navigate',
+        value: function navigate(location) {
+            this.props.router.push(location);
+        }
+    }, {
         key: 'render',
         value: function render() {
             return _react2.default.createElement(
                 'div',
                 { className: 'main' },
-                _react2.default.createElement(_Nav2.default, null),
+                _react2.default.createElement(_Nav2.default, { navigate: this.navigate }),
                 _react2.default.createElement(
                     'div',
                     { className: 'container' },
@@ -597,7 +603,7 @@ var Home = function (_React$Component) {
         key: 'handleNewItem',
         value: function handleNewItem(event) {
             event.preventDefault();
-            window.location = '/create/' + this.state.newItemText;
+            this.props.router.push('/create/' + this.state.newItemText);
         }
     }, {
         key: 'render',
@@ -712,7 +718,7 @@ var Nav = function (_React$Component) {
         key: 'onSearch',
         value: function onSearch(event) {
             event.preventDefault();
-            this.props.router.push('search/' + this.state.searchText);
+            this.props.navigate('/search/' + this.state.searchText);
         }
     }, {
         key: 'render',
@@ -1137,6 +1143,24 @@ var Profile = function (_React$Component) {
             return _react2.default.createElement(
                 'div',
                 null,
+                _react2.default.createElement(
+                    'div',
+                    { className: 'medium-align profile-details' },
+                    _react2.default.createElement('img', { src: '/img/profile-pic.png' }),
+                    _react2.default.createElement(
+                        'h3',
+                        null,
+                        ' ',
+                        this.state.user.name,
+                        ' '
+                    ),
+                    _react2.default.createElement(
+                        'p',
+                        null,
+                        ' ',
+                        _react2.default.createElement('br', null)
+                    )
+                ),
                 searchArea(),
                 _react2.default.createElement(
                     'div',
@@ -1285,26 +1309,69 @@ var Search = function (_React$Component) {
                 return _react2.default.createElement(
                     'div',
                     { key: index },
-                    ' ',
-                    user.name,
-                    ' '
+                    _react2.default.createElement(
+                        'h3',
+                        null,
+                        ' ',
+                        user.name,
+                        ' '
+                    ),
+                    _react2.default.createElement(
+                        'p',
+                        null,
+                        ' Followers: ',
+                        " " + user.followers.length,
+                        ' '
+                    ),
+                    _react2.default.createElement(
+                        'p',
+                        null,
+                        ' Following: ',
+                        " " + user.following.length,
+                        ' '
+                    )
                 );
             });
 
             var results = function results() {
                 var items = [];
-                if (posts) items.push(_react2.default.createElement(
+                if (users.length > 0) {
+                    items.push(_react2.default.createElement(
+                        'h2',
+                        { className: 'medium-align' },
+                        ' Users: '
+                    ));
+                    items.push(_react2.default.createElement(
+                        'div',
+                        { className: 'box-medium users', key: 1 },
+                        ' ',
+                        users,
+                        ' '
+                    ));
+                }
+                if (posts.length > 0) {
+                    items.push(_react2.default.createElement(
+                        'h2',
+                        { className: 'medium-align' },
+                        ' Posts: '
+                    ));
+                    items.push(_react2.default.createElement(
+                        'div',
+                        { key: 2 },
+                        ' ',
+                        posts,
+                        ' '
+                    ));
+                }
+                if (posts.length == 0 && users.length == 0) items.push(_react2.default.createElement(
                     'div',
-                    { className: 'box-medium posts', key: 1 },
+                    { className: 'box-medium users', key: 3 },
                     ' ',
-                    posts,
-                    ' '
-                ));
-                if (users) items.push(_react2.default.createElement(
-                    'div',
-                    { className: 'box-medium users', key: 2 },
-                    ' ',
-                    users,
+                    _react2.default.createElement(
+                        'h3',
+                        null,
+                        ' Nothing Found '
+                    ),
                     ' '
                 ));
                 return items;

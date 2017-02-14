@@ -3,6 +3,7 @@ import NavStore from '../stores/NavStore';
 import NavActions from '../actions/NavActions';
 import {Link} from 'react-router';
 import * as firebase from 'firebase';
+import { browserHistory } from 'react-router'
 
 class Nav extends React.Component {
 
@@ -35,9 +36,10 @@ class Nav extends React.Component {
 
     onSearch(event) {
         event.preventDefault();
-        this.props.router.push('search/'+this.state.searchText);
+        this.props.navigate('/search/' + this.state.searchText);
+
     }
-    
+
     render() {
         return (
             <div className="Nav">
